@@ -34,9 +34,7 @@ export const apiRequest = async <T>(
   try {
     response = await fetch(`${API_URL}${path}`, { ...options, headers });
   } catch {
-    throw new Error(
-      "Could not connect to the SilingScan API. Check that the backend is running.",
-    );
+    throw new Error("Unable to complete the request right now. Please try again.");
   }
 
   if (!response.ok) {

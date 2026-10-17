@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db, verifyDatabaseConnection } from "./db/index.js";
 import { users } from "./db/schema/auth.js";
-import { hashPassword } from "./password.js";
+import { hashPassword, verifyPassword } from "./password.js";
 
 export const initializeDatabase = async (): Promise<void> => {
   await verifyDatabaseConnection();
@@ -37,6 +37,18 @@ export const initializeDatabase = async (): Promise<void> => {
       throw new Error(
         "ADMIN_EMAIL already belongs to a non-admin account. Use a separate private admin email.",
       );
+    }
+    const passwordMatches = await verifyPassword(
+      adminPassword,
+      existingUser.passwordHash,
+      existingUser.passwordSalt,
+    );
+    if (!passwordMatches) {
+      const password = await hashPassword(adminPassword);
+      await db
+        .update(users)
+        .set(password)
+        .where(eq(users.id, existingUser.id));
     }
     return;
   }

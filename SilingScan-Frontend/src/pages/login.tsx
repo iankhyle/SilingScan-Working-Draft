@@ -107,6 +107,12 @@ const LoginPage = () => {
           </button>
         </form>
 
+          <p className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm leading-5 text-emerald-900">
+            Administrator? Sign in here with the private credentials provided
+            by your system administrator. Admin accounts are not available
+            through public signup.
+          </p>
+
           <p className="chili-auth__switch">
             Don’t have an account?{" "}
             <button type="button" onClick={() => navigate("/signup")}>

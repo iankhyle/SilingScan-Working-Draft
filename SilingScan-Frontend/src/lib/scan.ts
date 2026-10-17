@@ -1,5 +1,5 @@
 export type ScanResult = {
-  status: "Healthy" | "Diseased";
+  status: "Healthy" | "Diseased" | "Pending";
   confidence: number;
   summary: string;
   urgency: string;

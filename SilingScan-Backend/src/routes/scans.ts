@@ -10,7 +10,7 @@ import {
 import { db } from "../db/index.js";
 import { scans } from "../db/schema/scans.js";
 import { analyzePepperImage } from "../model.js";
-import type { ScanHistoryEntry } from "../types.js";
+import type { ScanHistoryEntry, ScanResult } from "../types.js";
 import { asyncRoute, getAuthenticatedUser } from "./helpers.js";
 
 const maximumImageSize = 5 * 1024 * 1024;
@@ -90,7 +90,25 @@ scanRoutes.post(
       throw new ApiError(400, "Upload a valid JPG, PNG, or WEBP image.");
     }
 
-    const result = await analyzePepperImage(image.buffer);
+    let result: ScanResult;
+    try {
+      result = await analyzePepperImage(image.buffer);
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 503) {
+        throw error;
+      }
+      result = {
+        status: "Pending" as const,
+        confidence: 0,
+        summary:
+          "Image uploaded successfully. Diagnosis is awaiting connection of the trained SilingScan model.",
+        urgency: "Not assessed",
+        recommendations: [
+          "Review the uploaded plant image with a local agriculturist.",
+          "Continue routine care while waiting for a diagnosis.",
+        ],
+      };
+    }
     const user = getAuthenticatedUser(request.authUser);
     const id = randomUUID();
     const createdAt = new Date();

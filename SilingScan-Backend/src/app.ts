@@ -10,12 +10,19 @@ import { scanRoutes } from "./routes/scans.js";
 
 export const createApp = () => {
   const app = express();
+  const configuredOrigins = new Set(
+    (process.env.CORS_ORIGINS ?? "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  );
 
   app.use((request, response, next) => {
     const origin = request.header("origin");
     if (
       origin &&
-      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+      (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+        configuredOrigins.has(origin))
     ) {
       response.header("Access-Control-Allow-Origin", origin);
       response.header("Vary", "Origin");

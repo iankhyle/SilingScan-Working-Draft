@@ -26,7 +26,7 @@ export type CurrentUser = {
 export type ScanHistoryEntry = {
   id: string;
   imageUrl: string;
-  status: "Healthy" | "Diseased";
+  status: "Healthy" | "Diseased" | "Pending";
   confidence: number;
   summary: string;
   urgency: string;

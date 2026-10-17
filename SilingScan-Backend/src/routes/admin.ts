@@ -3,9 +3,43 @@ import { and, desc, eq, ne } from "drizzle-orm";
 import { ApiError, requireAdminRole, requireAuth } from "../auth.js";
 import { db } from "../db/index.js";
 import { users } from "../db/schema/auth.js";
+import { scans } from "../db/schema/scans.js";
 import { asyncRoute } from "./helpers.js";
 
 export const adminRoutes = express.Router();
+
+adminRoutes.get(
+  "/scans",
+  requireAuth,
+  requireAdminRole,
+  asyncRoute(async (_request, response) => {
+    const records = await db
+      .select({
+        id: scans.id,
+        userId: scans.userId,
+        userName: users.name,
+        userEmail: users.email,
+        imageUrl: scans.imageData,
+        status: scans.status,
+        confidence: scans.confidence,
+        summary: scans.summary,
+        urgency: scans.urgency,
+        recommendations: scans.recommendations,
+        createdAt: scans.createdAt,
+      })
+      .from(scans)
+      .innerJoin(users, eq(scans.userId, users.id))
+      .orderBy(desc(scans.createdAt));
+
+    response.json(
+      records.map((scan) => ({
+        ...scan,
+        status: scan.status as "Healthy" | "Diseased" | "Pending",
+        createdAt: scan.createdAt.toISOString(),
+      })),
+    );
+  }),
+);
 
 adminRoutes.get(
   "/users",

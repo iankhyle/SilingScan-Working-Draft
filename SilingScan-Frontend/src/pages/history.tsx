@@ -122,10 +122,12 @@ const HistoryPage = () => {
                       className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                         entry.status === "Healthy"
                           ? "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-600/20"
-                          : "bg-red-500/15 text-red-700 ring-1 ring-red-600/20"
+                          : entry.status === "Diseased"
+                            ? "bg-red-500/15 text-red-700 ring-1 ring-red-600/20"
+                            : "bg-amber-500/15 text-amber-800 ring-1 ring-amber-600/20"
                       }`}
                     >
-                      {entry.status}
+                      {entry.status === "Pending" ? "Awaiting diagnosis" : entry.status}
                     </span>
                     <span className="text-xs text-slate-500">
                       {new Date(entry.createdAt).toLocaleDateString()}
@@ -133,7 +135,9 @@ const HistoryPage = () => {
                   </div>
 
                   <h2 className="text-xl font-bold text-slate-900">
-                    {entry.confidence}% confidence
+                    {entry.status === "Pending"
+                      ? "Awaiting diagnosis"
+                      : `${entry.confidence}% confidence`}
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {entry.summary}

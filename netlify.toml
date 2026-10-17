@@ -1,0 +1,4 @@
+[build]
+  base = "SilingScan-Frontend"
+  command = "npm run build"
+  publish = "dist"

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: silingscan-api
+    runtime: node
+    plan: free
+    rootDir: SilingScan-Backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@gmail.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: SilingScan Administrator
+      - key: CORS_ORIGINS
+        sync: false

@@ -8,10 +8,14 @@ the source of truth for accounts, sessions, and scan history.
 1. Create a PostgreSQL database (Neon is supported) and copy its connection
    string.
 2. Copy `.env.example` to `.env` and set `DATABASE_URL`. Keep `.env` private.
-   Set `ADMIN_EMAIL` and a unique `ADMIN_PASSWORD` (12+ characters) to
-   provision the private administrator account on the next server start.
+   Set `CORS_ORIGINS` to your deployed frontend origin (comma-separated if
+   there is more than one); localhost is allowed for development. Set
+   `ADMIN_EMAIL` and a private `ADMIN_PASSWORD` (12+ characters) to provision
+   the private administrator account on the next server start.
    Admin is not a signup role; only the configured account can sign in as
-   administrator.
+   administrator. On startup, the configured admin password is synchronized
+   to the existing admin account so changing the private environment variable
+   also rotates its password.
 3. From this folder, install dependencies and create the database tables:
 
    ```sh
@@ -36,12 +40,16 @@ hashed before storage.
 - `GET/POST /api/crops` — view and add the signed-in farmer's crop records
 - `GET/POST /api/advisories` — browse and publish specialist field guidance
 - `GET /api/admin/users` — administrator-only account directory
+- `GET /api/admin/scans` — administrator-only list of uploaded scans and their owners
 - `PATCH /api/admin/users/:id/role` — administrator-only role assignment
 
-Image diagnosis intentionally returns `503` until the trained disease-detection
-model is connected. The frontend displays this as an explicit unavailable
-message rather than presenting fabricated predictions.
+Image diagnosis remains unavailable until the trained disease-detection model
+is connected. Valid uploads are still saved and shown as awaiting diagnosis;
+the frontend does not present a fabricated prediction.
 
 For production, run `npm run build` and `npm start`. Set `VITE_API_URL` in the
-frontend to the deployed API's `/api` URL. The development CORS configuration
-allows local frontend origins only.
+frontend to the deployed API's `/api` URL. Set `CORS_ORIGINS` to the exact
+deployed frontend origin (comma-separated for multiple origins); localhost is
+also allowed for development. The repository's root `render.yaml` provisions
+the Express API on Render with its database and admin credentials supplied as
+private service environment variables.

@@ -10,18 +10,41 @@ type Account = {
   createdAt: string;
 };
 
+type UploadedScan = {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  imageUrl: string;
+  status: "Healthy" | "Diseased" | "Pending";
+  confidence: number;
+  summary: string;
+  urgency: string;
+  recommendations: string[];
+  createdAt: string;
+};
+
 const manageableRoles: UserRole[] = ["farmer", "researcher", "agriculturist"];
 
 const AdminPage = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [scans, setScans] = useState<UploadedScan[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState("");
 
   useEffect(() => {
     let active = true;
-    void apiRequest<Account[]>("/admin/users")
-      .then((items) => { if (active) setAccounts(items); })
+    void Promise.all([
+      apiRequest<Account[]>("/admin/users"),
+      apiRequest<UploadedScan[]>("/admin/scans"),
+    ])
+      .then(([users, uploadedScans]) => {
+        if (active) {
+          setAccounts(users);
+          setScans(uploadedScans);
+        }
+      })
       .catch((err: unknown) => { if (active) setError(err instanceof Error ? err.message : "Unable to load accounts."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -89,6 +112,48 @@ const AdminPage = () => {
                 </tr>
               ))}</tbody>
             </table>
+          </div>
+        )}
+      </section>
+
+      <section className="workspace-card">
+        <div className="workspace-section-heading">
+          <div><p className="workspace-eyebrow">Platform uploads</p><h2>Uploaded plant scans</h2></div>
+          <span className="workspace-count">{scans.length} total</span>
+        </div>
+        {loading ? <div className="workspace-empty">Loading uploaded scans…</div> : scans.length === 0 ? (
+          <div className="workspace-empty"><h3>No uploads yet</h3><p>Images uploaded by users will appear here with their account and scan details.</p></div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {scans.map((scan) => (
+              <article className="workspace-record overflow-hidden p-0" key={scan.id}>
+                <img src={scan.imageUrl} alt={`Plant uploaded by ${scan.userName}`} className="h-48 w-full object-cover" />
+                <div className="space-y-4 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate">{scan.userName}</h3>
+                      <p className="break-all text-sm text-slate-600">{scan.userEmail}</p>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${scan.status === "Healthy" ? "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-600/20" : scan.status === "Diseased" ? "bg-red-500/15 text-red-700 ring-1 ring-red-600/20" : "bg-amber-500/15 text-amber-800 ring-1 ring-amber-600/20"}`}>{scan.status === "Pending" ? "Awaiting diagnosis" : scan.status}</span>
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">{scan.summary}</p>
+                  <div className="workspace-record__details">
+                    <span>{scan.status === "Pending" ? "No AI result yet" : `${scan.confidence}% confidence`}</span>
+                    <span>{new Date(scan.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Urgency</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-700">{scan.urgency}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Recommendations</p>
+                    <ul className="mt-2 space-y-2 text-sm text-slate-600">
+                      {scan.recommendations.map((recommendation) => <li key={recommendation} className="flex gap-2"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-500" /><span>{recommendation}</span></li>)}
+                    </ul>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
         )}
       </section>

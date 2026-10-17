@@ -81,8 +81,8 @@ const Dashboard = () => {
               Chili Pepper Disease Checker
             </h1>
             <p className="mt-3 text-base text-slate-600">
-              Upload a photo of your siling labuyo to detect disease and get
-              next steps.
+              Upload a photo of your siling labuyo to save a scan, view care
+              guidance, and get a diagnosis when the trained model is connected.
             </p>
           </div>
 
@@ -174,12 +174,12 @@ const Dashboard = () => {
           {isLoading ? (
             <div className="mt-5 flex items-center justify-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-              Scanning your image for disease markers...
+              Uploading your image and preparing the scan...
             </div>
           ) : null}
           <p className="mt-5 text-center text-xs text-slate-500">
-            Your uploaded image is checked privately. Diagnosis will activate
-            when the trained SilingScan model is connected.
+            Your uploaded image is saved privately. Until the trained model is
+            connected, scans are marked as awaiting diagnosis.
           </p>
         </section>
       </div>

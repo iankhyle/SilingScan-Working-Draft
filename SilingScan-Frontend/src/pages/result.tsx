@@ -42,7 +42,9 @@ const ResultPage = () => {
   const statusClass =
     scan.result.status === "Healthy"
       ? "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-600/20"
-      : "bg-red-500/15 text-red-700 ring-1 ring-red-600/20";
+      : scan.result.status === "Diseased"
+        ? "bg-red-500/15 text-red-700 ring-1 ring-red-600/20"
+        : "bg-amber-500/15 text-amber-800 ring-1 ring-amber-600/20";
 
   return (
     <div className="chili-page min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50 px-4 py-10 text-slate-900">
@@ -79,13 +81,15 @@ const ResultPage = () => {
               <div>
                 <p className="text-sm text-slate-300">Status</p>
                 <h2 className="mt-1 text-3xl font-black">
-                  {scan.result.status}
+                  {scan.result.status === "Pending" ? "Awaiting diagnosis" : scan.result.status}
                 </h2>
               </div>
               <span
                 className={`rounded-full px-3 py-1 text-sm font-semibold ${statusClass}`}
               >
-                {scan.result.confidence}% confidence
+                {scan.result.status === "Pending"
+                  ? "No AI result yet"
+                  : `${scan.result.confidence}% confidence`}
               </span>
             </div>
 
